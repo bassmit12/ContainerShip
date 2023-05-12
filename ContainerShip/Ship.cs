@@ -10,33 +10,114 @@ namespace ContainerShip
     {
         private int width;
         private int length;
-        private ContainerType?[,] layout;
+        private Container?[,] layout;
 
         public Ship(int width, int length)
         {
             this.width = width;
             this.length = length;
-            layout = new ContainerType?[length, width];
+            layout = new Container[length, width];
         }
 
         public void PlaceContainers(Container[] containers)
         {
-            int row = 0;
+            // Place all cooled containers on the first row
             int col = 0;
             for (int i = 0; i < containers.Length; i++)
             {
-                layout[row, col] = containers[i].Type;
-
-                col++;
-                if (col >= width)
+                if (containers[i].Type == ContainerType.Cooled)
                 {
-                    row++;
-                    col = 0;
+                    layout[0, col] = containers[i];
+                    col++;
+                    if (col >= width)
+                    {
+                        break;
+                    }
                 }
+            }
 
-                if (row >= length || col >= width)
+            // Place the remaining containers on the first row if the space is not already taken by a container
+            col = 0;
+            for (int i = 0; i < containers.Length; i++)
+            {
+                if (containers[i].Type != ContainerType.Cooled)
                 {
-                    break;
+                    if (layout[0, col] == null)
+                    {
+                        layout[0, col] = containers[i];
+                        col++;
+                        if (col >= width)
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Move to the next column if the space is already taken
+                        col++;
+                        if (col >= width)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Place the remaining containers in the rest of the ship
+            int row = 1;
+            col = 0;
+            for (int i = 0; i < containers.Length; i++)
+            {
+                if (containers[i].Type != ContainerType.Cooled)
+                {
+                    if (layout[row, col] == null)
+                    {
+                        layout[row, col] = containers[i];
+
+                        col++;
+                        if (col >= width)
+                        {
+                            row++;
+                            col = 0;
+                        }
+
+                        if (row >= length)
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Move to the next column if the space is already taken
+                        col++;
+                        if (col >= width)
+                        {
+                            row++;
+                            col = 0;
+                        }
+
+                        if (row >= length)
+                        {
+                            break;
+                        }
+                        // Place the container in the next available space
+                        if (layout[row, col] == null)
+                        {
+                            layout[row, col] = containers[i];
+
+                            col++;
+                            if (col >= width)
+                            {
+                                row++;
+                                col = 0;
+                            }
+
+                            if (row >= length)
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -44,18 +125,29 @@ namespace ContainerShip
         public void PrintLayout()
         {
             Console.WriteLine("Layout with containers:");
-            for (int i = 0; i < length; i++)
+            for (int x = 0; x < length; x++)
             {
-                for (int j = 0; j < width; j++)
+                for (int y = 0; y < width; y++)
                 {
-                    var container = layout[i, j];
-                    Console.Write(container switch
+                    if (layout[x, y] != null)
                     {
-                        ContainerType.Normal => "N",
-                        ContainerType.Cooled => "C",
-                        ContainerType.Valuable => "V",
-                        _ => "."
-                    } + " ");
+                        switch (layout[x, y]?.Type)
+                        {
+                            case ContainerType.Normal:
+                                Console.Write("N ");
+                                break;
+                            case ContainerType.Cooled:
+                                Console.Write("C ");
+                                break;
+                            case ContainerType.Valuable:
+                                Console.Write("V ");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.Write(". ");
+                    }
                 }
                 Console.WriteLine();
             }

@@ -9,7 +9,7 @@ namespace ContainerShip
         static void Main(string[] args)
         {
             // Create a ship with dimensions 4x3
-            Ship ship = new Ship(8, 3);
+            Ship ship = new Ship(4, 3);
 
             // Create an array of containers
             Container[] containers = new Container[]
@@ -17,6 +17,8 @@ namespace ContainerShip
                 new Container { Type = ContainerType.Normal },
                 new Container { Type = ContainerType.Normal },
                 new Container { Type = ContainerType.Normal },
+                new Container { Type = ContainerType.Cooled },
+                new Container { Type = ContainerType.Cooled },
                 new Container { Type = ContainerType.Cooled },
                 new Container { Type = ContainerType.Cooled },
                 new Container { Type = ContainerType.Valuable },
