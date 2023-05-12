@@ -25,98 +25,51 @@ namespace ContainerShip
             int col = 0;
             for (int i = 0; i < containers.Length; i++)
             {
-                if (containers[i].Type == ContainerType.Cooled)
+                if (containers[i].Temperature == ContainerTemperature.Cold)
                 {
-                    layout[0, col] = containers[i];
-                    col++;
-                    if (col >= width)
+                    bool isPlaced = false;
+                    for (int x = 0; x < width; x++)
                     {
-                        break;
-                    }
-                }
-            }
-
-            // Place the remaining containers on the first row if the space is not already taken by a container
-            col = 0;
-            for (int i = 0; i < containers.Length; i++)
-            {
-                if (containers[i].Type != ContainerType.Cooled)
-                {
-                    if (layout[0, col] == null)
-                    {
-                        layout[0, col] = containers[i];
-                        col++;
-                        if (col >= width)
+                        if (layout[0, x] == null)
                         {
+                            layout[0, x] = containers[i];
+                            isPlaced = true;
                             break;
                         }
                     }
-                    else
+                    if (!isPlaced)
                     {
-                        // Move to the next column if the space is already taken
-                        col++;
-                        if (col >= width)
-                        {
-                            break;
-                        }
+                        Console.WriteLine("Unable to place container: " + containers[i].ToString());
                     }
                 }
             }
 
             // Place the remaining containers in the rest of the ship
-            int row = 1;
+            int row = 0;
             col = 0;
             for (int i = 0; i < containers.Length; i++)
             {
-                if (containers[i].Type != ContainerType.Cooled)
+                if (containers[i].Temperature != ContainerTemperature.Cold)
                 {
-                    if (layout[row, col] == null)
+                    bool isPlaced = false;
+                    while (row < length)
                     {
-                        layout[row, col] = containers[i];
-
-                        col++;
-                        if (col >= width)
-                        {
-                            row++;
-                            col = 0;
-                        }
-
-                        if (row >= length)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // Move to the next column if the space is already taken
-                        col++;
-                        if (col >= width)
-                        {
-                            row++;
-                            col = 0;
-                        }
-
-                        if (row >= length)
-                        {
-                            break;
-                        }
-                        // Place the container in the next available space
                         if (layout[row, col] == null)
                         {
                             layout[row, col] = containers[i];
-
-                            col++;
-                            if (col >= width)
-                            {
-                                row++;
-                                col = 0;
-                            }
-
-                            if (row >= length)
-                            {
-                                break;
-                            }
+                            isPlaced = true;
+                            break;
                         }
+                        col++;
+                        if (col >= width)
+                        {
+                            row++;
+                            col = 0;
+                        }
+                    }
+                    if (!isPlaced)
+                    {
+                        Console.WriteLine("Unable to place container: " + containers[i].ToString());
                     }
                 }
             }
@@ -134,13 +87,26 @@ namespace ContainerShip
                         switch (layout[x, y]?.Type)
                         {
                             case ContainerType.Normal:
-                                Console.Write("N ");
-                                break;
-                            case ContainerType.Cooled:
-                                Console.Write("C ");
+                                switch (layout[x, y]?.Temperature)
+                                {
+                                    case ContainerTemperature.Normal:
+                                        Console.Write("N ");
+                                        break;
+                                    case ContainerTemperature.Cold:
+                                        Console.Write("C ");
+                                        break;
+                                }
                                 break;
                             case ContainerType.Valuable:
-                                Console.Write("V ");
+                                switch (layout[x, y]?.Temperature)
+                                {
+                                    case ContainerTemperature.Normal:
+                                        Console.Write("V ");
+                                        break;
+                                    case ContainerTemperature.Cold:
+                                        Console.Write("B ");
+                                        break;
+                                }
                                 break;
                         }
                     }
@@ -152,5 +118,7 @@ namespace ContainerShip
                 Console.WriteLine();
             }
         }
+
     }
 }
+

@@ -14,14 +14,14 @@ namespace ContainerShip
             // Create an array of containers
             Container[] containers = new Container[]
             {
-                new Container { Type = ContainerType.Normal },
-                new Container { Type = ContainerType.Normal },
-                new Container { Type = ContainerType.Normal },
-                new Container { Type = ContainerType.Cooled },
-                new Container { Type = ContainerType.Cooled },
-                new Container { Type = ContainerType.Cooled },
-                new Container { Type = ContainerType.Cooled },
-                new Container { Type = ContainerType.Valuable },
+                new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal },
+                new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal },
+                new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal },
+                new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Cold },
+                new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Cold },
+                new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Cold },
+                new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Cold },
+                new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Normal },
             };
 
             // Place the containers on the ship

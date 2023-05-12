@@ -9,8 +9,13 @@ namespace ContainerShip
     enum ContainerType
     {
         Normal,
-        Cooled,
         Valuable
+    }
+
+    enum ContainerTemperature
+    {
+        Normal,
+        Cold
     }
 
     class Container
@@ -18,6 +23,7 @@ namespace ContainerShip
         private static readonly Random random = new Random();
 
         public ContainerType Type { get; set; }
+        public ContainerTemperature Temperature { get; set; }
         public int Weight { get; set; }
         public int MaxLoad { get; set; } = 120000;
 
