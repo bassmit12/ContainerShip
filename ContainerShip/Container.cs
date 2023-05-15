@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace ContainerShip
 {
-    enum ContainerType
+    public enum ContainerType
     {
         Normal,
         Valuable
     }
 
-    enum ContainerTemperature
+    public enum ContainerTemperature
     {
         Normal,
         Cold
     }
 
-    class Container
+    public class Container
     {
         private static readonly Random random = new Random();
 

@@ -18,18 +18,17 @@ using System.ComponentModel;
 
 namespace ContainerShip
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            // Create a ship with dimensions 4x3
             Ship ship = new Ship(4, 3);
 
             // Create an array of containers
             Container[] containers = new Container[30];
 
             int index = 0;
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < 15; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal };
                 index++;
@@ -41,13 +40,13 @@ namespace ContainerShip
                 index++;
             }
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 7; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Cold };
                 index++;
             }
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 1; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Normal };
                 index++;

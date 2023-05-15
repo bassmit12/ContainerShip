@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ContainerShip
 {
-    class Ship
+    public class Ship
     {
         private int width;
         private int length;
@@ -87,37 +87,43 @@ namespace ContainerShip
         private void PlaceCooledContainers(Container[] containers)
         {
             int col = 0;
-            int layer = 0; // Track the current layer
+            int layer = 0;
             foreach (var container in containers)
             {
                 if (container.Temperature == ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
-                    while (col < width && !isPlaced) // Iterate through the first row until a suitable position is found
+                    while (layer < height && !isPlaced) // Iterate through the layers until a suitable position is found
                     {
-                        if (layout[0, col, layer] == null)
+                        col = 0; // Reset the column position
+                        while (col < width && !isPlaced) // Iterate through the first row until a suitable position is found
                         {
-                            layout[0, col, layer] = container; // Place in the specified layer
-                            isPlaced = true;
+                            if (layout[0, col, layer] == null)
+                            {
+                                layout[0, col, layer] = container; // Place in the specified layer
+                                isPlaced = true;
+                            }
+                            col++;
                         }
-                        col++;
+
+                        if (!isPlaced)
+                        {
+                            layer++;
+                            if (layer >= height)
+                            {
+                                IncreaseHeight();
+                            }
+                        }
                     }
+
                     if (!isPlaced)
                     {
-                        // If the first row is full in the current layer, move to the next layer and try again
-                        layer++;
-                        col = 0; // Reset the column position
-                        if (layer >= height)
-                        {
-                            // If all existing layers are full, add a new layer
-                            IncreaseHeight();
-                        }
-                        // Retry placing the container in the new layer
-                        layout[0, col, layer] = container;
+                        Console.WriteLine("Unable to place container: " + container.ToString());
                     }
                 }
             }
         }
+
 
         private void PlaceRemainingContainers(Container[] containers)
         {
@@ -129,27 +135,39 @@ namespace ContainerShip
                 if (container.Temperature != ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
-                    while (layer < height)
+                    while (layer < height && !isPlaced) // Iterate through the layers until a suitable position is found
                     {
-                        if (layout[row, col, layer] == null)
+                        while (row < length && !isPlaced) // Iterate through the rows until a suitable position is found
                         {
-                            layout[row, col, layer] = container;
-                            isPlaced = true;
-                            break;
-                        }
-                        col++;
-                        if (col >= width)
-                        {
-                            row++;
-                            col = 0;
-                            if (row >= length)
+                            col = 0; // Reset the column position
+                            while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
                             {
-                                row = 0;
-                                col = 0;
-                                layer++; // Move to the next layer if the current layer is full
+                                if (layout[row, col, layer] == null)
+                                {
+                                    layout[row, col, layer] = container;
+                                    isPlaced = true;
+                                }
+                                col++;
+                            }
+                            if (!isPlaced)
+                            {
+                                row++;
+                                col = 0; // Reset the column position
+                                if (row >= length && layer == height - 1)
+                                {
+                                    // If all layers are full and there is no remaining layer, increase the height
+                                    IncreaseHeight();
+                                    row = 0; // Reset the row position
+                                }
                             }
                         }
+                        if (!isPlaced)
+                        {
+                            layer++;
+                            row = 0; // Reset the row position
+                        }
                     }
+
                     if (!isPlaced)
                     {
                         Console.WriteLine("Unable to place container: " + container.ToString());
@@ -158,7 +176,8 @@ namespace ContainerShip
             }
         }
 
-        private bool IsContainerPlaced(Container container)
+
+        public bool IsContainerPlaced(Container container)
         {
             for (int x = 0; x < length; x++)
             {
