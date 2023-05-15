@@ -31,5 +31,10 @@ namespace ContainerShip
         {
             Weight = random.Next(4000, 30001);
         }
+
+        public override string ToString()
+        {
+            return $"Type: {Type}, Temperature: {Temperature}";
+        }
     }
 }

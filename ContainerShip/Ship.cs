@@ -21,42 +21,59 @@ namespace ContainerShip
 
         public void PlaceContainers(Container[] containers)
         {
-            // Place all cooled containers on the first row
-            int col = 0;
-            for (int i = 0; i < containers.Length; i++)
+            PlaceCooledContainers(containers);
+            PlaceRemainingContainers(containers);
+
+            // Check if there are containers that couldn't be placed
+            if (containers.Any(container => container.Temperature == ContainerTemperature.Cold && !IsContainerPlaced(container)))
             {
-                if (containers[i].Temperature == ContainerTemperature.Cold)
+                Console.WriteLine("Not enough space in the first row to place all cooled containers.");
+            }
+            else if (containers.Any(container => container.Temperature != ContainerTemperature.Cold && !IsContainerPlaced(container)))
+            {
+                Console.WriteLine("Not enough space in the ship to place all containers.");
+            }
+        }
+
+        private void PlaceCooledContainers(Container[] containers)
+        {
+            int col = 0;
+            foreach (var container in containers)
+            {
+                if (container.Temperature == ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
                     for (int x = 0; x < width; x++)
                     {
                         if (layout[0, x] == null)
                         {
-                            layout[0, x] = containers[i];
+                            layout[0, x] = container;
                             isPlaced = true;
                             break;
                         }
                     }
                     if (!isPlaced)
                     {
-                        Console.WriteLine("Unable to place container: " + containers[i].ToString());
+                        Console.WriteLine("Unable to place container: " + container.ToString());
                     }
                 }
             }
+        }
 
-            // Place the remaining containers in the rest of the ship
+        private void PlaceRemainingContainers(Container[] containers)
+        {
             int row = 0;
-            col = 0;
-            for (int i = 0; i < containers.Length; i++)
+            int col = 0;
+            foreach (var container in containers)
             {
-                if (containers[i].Temperature != ContainerTemperature.Cold)
+                if (container.Temperature != ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
                     while (row < length)
                     {
                         if (layout[row, col] == null)
                         {
-                            layout[row, col] = containers[i];
+                            layout[row, col] = container;
                             isPlaced = true;
                             break;
                         }
@@ -69,14 +86,30 @@ namespace ContainerShip
                     }
                     if (!isPlaced)
                     {
-                        Console.WriteLine("Unable to place container: " + containers[i].ToString());
+                        Console.WriteLine("Unable to place container: " + container.ToString());
                     }
                 }
             }
         }
 
+        private bool IsContainerPlaced(Container container)
+        {
+            for (int x = 0; x < length; x++)
+            {
+                for (int y = 0; y < width; y++)
+                {
+                    if (layout[x, y] == container)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public void PrintLayout()
         {
+            Console.WriteLine("");
             Console.WriteLine("Layout with containers:");
             for (int x = 0; x < length; x++)
             {
@@ -84,31 +117,7 @@ namespace ContainerShip
                 {
                     if (layout[x, y] != null)
                     {
-                        switch (layout[x, y]?.Type)
-                        {
-                            case ContainerType.Normal:
-                                switch (layout[x, y]?.Temperature)
-                                {
-                                    case ContainerTemperature.Normal:
-                                        Console.Write("N ");
-                                        break;
-                                    case ContainerTemperature.Cold:
-                                        Console.Write("C ");
-                                        break;
-                                }
-                                break;
-                            case ContainerType.Valuable:
-                                switch (layout[x, y]?.Temperature)
-                                {
-                                    case ContainerTemperature.Normal:
-                                        Console.Write("V ");
-                                        break;
-                                    case ContainerTemperature.Cold:
-                                        Console.Write("B ");
-                                        break;
-                                }
-                                break;
-                        }
+                        Console.Write(GetContainerSymbol(layout[x, y]) + " ");
                     }
                     else
                     {
@@ -117,6 +126,33 @@ namespace ContainerShip
                 }
                 Console.WriteLine();
             }
+        }
+
+        private char GetContainerSymbol(Container container)
+        {
+            switch (container.Type)
+            {
+                case ContainerType.Normal:
+                    switch (container.Temperature)
+                    {
+                        case ContainerTemperature.Normal:
+                            return 'N';
+                        case ContainerTemperature.Cold:
+                            return 'C';
+                    }
+                    break;
+                case ContainerType.Valuable:
+                    switch (container.Temperature)
+                    {
+                        case ContainerTemperature.Normal:
+                            return 'V';
+                        case ContainerTemperature.Cold:
+                            return 'B';
+                    }
+                    break;
+            }
+
+            return ' ';
         }
 
     }
