@@ -26,16 +26,16 @@ namespace ContainerShip
             Ship ship = new Ship(4, 3);
 
             // Create an array of containers
-            Container[] containers = new Container[10];
+            Container[] containers = new Container[30];
 
             int index = 0;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 13; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal };
                 index++;
             }
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 7; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Cold };
                 index++;
@@ -47,7 +47,7 @@ namespace ContainerShip
                 index++;
             }
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 8; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Normal };
                 index++;

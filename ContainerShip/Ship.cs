@@ -10,13 +10,15 @@ namespace ContainerShip
     {
         private int width;
         private int length;
-        private Container?[,] layout;
+        private int height;
+        private Container?[,,] layout;
 
         public Ship(int width, int length)
         {
             this.width = width;
             this.length = length;
-            layout = new Container[length, width];
+            this.height = 1; // Initialize height to 1
+            layout = new Container[length, width, height];
         }
 
         public void PlaceContainers(Container[] containers)
@@ -33,28 +35,85 @@ namespace ContainerShip
             {
                 Console.WriteLine("Not enough space in the ship to place all containers.");
             }
+
+            // Check if a new layer needs to be added
+            if (IsLayerFull(height - 1))
+            {
+                IncreaseHeight();
+            }
+        }
+
+        private void IncreaseHeight()
+        {
+            int newHeight = height + 1;
+
+            // Create a new temporary array with increased height
+            Container?[,,] newLayout = new Container[length, width, newHeight];
+
+            // Copy existing data to the new array
+            for (int x = 0; x < length; x++)
+            {
+                for (int y = 0; y < width; y++)
+                {
+                    for (int z = 0; z < height; z++)
+                    {
+                        newLayout[x, y, z] = layout[x, y, z];
+                    }
+                }
+            }
+
+            // Assign the new array to the layout variable
+            layout = newLayout;
+
+            // Update the height
+            height = newHeight;
+        }
+
+        private bool IsLayerFull(int layer)
+        {
+            for (int x = 0; x < length; x++)
+            {
+                for (int y = 0; y < width; y++)
+                {
+                    if (layout[x, y, layer] == null)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void PlaceCooledContainers(Container[] containers)
         {
             int col = 0;
+            int layer = 0; // Track the current layer
             foreach (var container in containers)
             {
                 if (container.Temperature == ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
-                    for (int x = 0; x < width; x++)
+                    while (col < width && !isPlaced) // Iterate through the first row until a suitable position is found
                     {
-                        if (layout[0, x] == null)
+                        if (layout[0, col, layer] == null)
                         {
-                            layout[0, x] = container;
+                            layout[0, col, layer] = container; // Place in the specified layer
                             isPlaced = true;
-                            break;
                         }
+                        col++;
                     }
                     if (!isPlaced)
                     {
-                        Console.WriteLine("Unable to place container: " + container.ToString());
+                        // If the first row is full in the current layer, move to the next layer and try again
+                        layer++;
+                        col = 0; // Reset the column position
+                        if (layer >= height)
+                        {
+                            // If all existing layers are full, add a new layer
+                            IncreaseHeight();
+                        }
+                        // Retry placing the container in the new layer
+                        layout[0, col, layer] = container;
                     }
                 }
             }
@@ -64,16 +123,17 @@ namespace ContainerShip
         {
             int row = 0;
             int col = 0;
+            int layer = 0;
             foreach (var container in containers)
             {
                 if (container.Temperature != ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
-                    while (row < length)
+                    while (layer < height)
                     {
-                        if (layout[row, col] == null)
+                        if (layout[row, col, layer] == null)
                         {
-                            layout[row, col] = container;
+                            layout[row, col, layer] = container;
                             isPlaced = true;
                             break;
                         }
@@ -82,6 +142,12 @@ namespace ContainerShip
                         {
                             row++;
                             col = 0;
+                            if (row >= length)
+                            {
+                                row = 0;
+                                col = 0;
+                                layer++; // Move to the next layer if the current layer is full
+                            }
                         }
                     }
                     if (!isPlaced)
@@ -98,9 +164,12 @@ namespace ContainerShip
             {
                 for (int y = 0; y < width; y++)
                 {
-                    if (layout[x, y] == container)
+                    for (int z = 0; z < height; z++)
                     {
-                        return true;
+                        if (layout[x, y, z] == container)
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -111,18 +180,24 @@ namespace ContainerShip
         {
             Console.WriteLine("");
             Console.WriteLine("Layout with containers:");
-            for (int x = 0; x < length; x++)
+
+            for (int z = 0; z < height; z++)
             {
-                for (int y = 0; y < width; y++)
+                Console.WriteLine($"Layer {z + 1}:");
+                for (int x = 0; x < length; x++)
                 {
-                    if (layout[x, y] != null)
+                    for (int y = 0; y < width; y++)
                     {
-                        Console.Write(GetContainerSymbol(layout[x, y]) + " ");
+                        if (layout[x, y, z] != null)
+                        {
+                            Console.Write(GetContainerSymbol(layout[x, y, z]) + " ");
+                        }
+                        else
+                        {
+                            Console.Write(". ");
+                        }
                     }
-                    else
-                    {
-                        Console.Write(". ");
-                    }
+                    Console.WriteLine();
                 }
                 Console.WriteLine();
             }
