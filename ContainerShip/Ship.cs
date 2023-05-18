@@ -207,19 +207,42 @@ namespace ContainerShip
 
         private void UpdateWeight(Container container, int col)
         {
-            if (col == 0)
+            int shipWidth = width;
+
+            // Calculate the weight based on the container's weight
+            int containerWeight = container.Weight;
+
+            // Determine the placement side
+            int middleLaneStartCol = shipWidth / 2;
+
+            if (shipWidth % 2 == 1) // Odd width, middle lane exists
             {
-                LeftSideWeight += container.Weight;
+                if (col < middleLaneStartCol) // Left side
+                {
+                    LeftSideWeight += containerWeight;
+                }
+                else if (col > middleLaneStartCol) // Right side
+                {
+                    RightSideWeight += containerWeight;
+                }
+                else // Middle lane
+                {
+                    MiddleSideWeight += containerWeight;
+                }
             }
-            else if (col == width - 1)
+            else // Even width, no middle lane
             {
-                RightSideWeight += container.Weight;
-            }
-            else
-            {
-                MiddleSideWeight += container.Weight;
+                if (col < middleLaneStartCol) // Left side
+                {
+                    LeftSideWeight += containerWeight;
+                }
+                else // Right side
+                {
+                    RightSideWeight += containerWeight;
+                }
             }
         }
+
 
         public bool IsContainerPlaced(Container container)
         {

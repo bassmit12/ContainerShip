@@ -22,7 +22,7 @@ namespace ContainerShip
     {
         static void Main(string[] args)
         {
-            Ship ship = new Ship(4, 3);
+            Ship ship = new Ship(5, 3);
 
             // Create an array of containers
             Container[] containers = new Container[30];
