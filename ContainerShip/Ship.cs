@@ -13,18 +13,44 @@ namespace ContainerShip
         private int height;
         private Container?[,,] layout;
 
+        // Weight tracking variables
+        private int LeftSideWeight { get; set; }
+        private int MiddleSideWeight { get; set; }
+        private int RightSideWeight { get; set; }
+
         public Ship(int width, int length)
         {
             this.width = width;
             this.length = length;
             this.height = 1; // Initialize height to 1
             layout = new Container[length, width, height];
+
+            // Initialize weight tracking variables
+            LeftSideWeight = 0;
+            MiddleSideWeight = 0;
+            RightSideWeight = 0;
         }
 
         public void PlaceContainers(Container[] containers)
         {
-            PlaceCooledContainers(containers);
-            PlaceRemainingContainers(containers);
+
+            // Separate the containers into cold and normal arrays
+            Container[] coldContainers = containers
+                .Where(container => container.Temperature == ContainerTemperature.Cold)
+                .OrderByDescending(container => container.Weight)
+                .ToArray();
+
+            Container[] normalContainers = containers
+                .Where(container => container.Temperature != ContainerTemperature.Cold)
+                .OrderByDescending(container => container.Weight)
+                .ToArray();
+
+
+            // Place the cold containers first
+            PlaceCooledContainers(coldContainers);
+
+            // Place the normal containers next
+            PlaceRemainingContainers(normalContainers);
 
             // Check if there are containers that couldn't be placed
             if (containers.Any(container => container.Temperature == ContainerTemperature.Cold && !IsContainerPlaced(container)))
@@ -96,12 +122,13 @@ namespace ContainerShip
                     while (layer < height && !isPlaced) // Iterate through the layers until a suitable position is found
                     {
                         col = 0; // Reset the column position
-                        while (col < width && !isPlaced) // Iterate through the first row until a suitable position is found
+                        while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
                         {
                             if (layout[0, col, layer] == null)
                             {
                                 layout[0, col, layer] = container; // Place in the specified layer
                                 isPlaced = true;
+                                UpdateWeight(container, col);
                             }
                             col++;
                         }
@@ -125,6 +152,7 @@ namespace ContainerShip
         }
 
 
+
         private void PlaceRemainingContainers(Container[] containers)
         {
             int row = 0;
@@ -146,6 +174,7 @@ namespace ContainerShip
                                 {
                                     layout[row, col, layer] = container;
                                     isPlaced = true;
+                                    UpdateWeight(container, col);
                                 }
                                 col++;
                             }
@@ -176,6 +205,21 @@ namespace ContainerShip
             }
         }
 
+        private void UpdateWeight(Container container, int col)
+        {
+            if (col == 0)
+            {
+                LeftSideWeight += container.Weight;
+            }
+            else if (col == width - 1)
+            {
+                RightSideWeight += container.Weight;
+            }
+            else
+            {
+                MiddleSideWeight += container.Weight;
+            }
+        }
 
         public bool IsContainerPlaced(Container container)
         {
@@ -220,6 +264,9 @@ namespace ContainerShip
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine($"Left Side Weight: {LeftSideWeight}");
+            Console.WriteLine($"Middle Side Weight: {MiddleSideWeight}");
+            Console.WriteLine($"Right Side Weight: {RightSideWeight}");
         }
 
         private char GetContainerSymbol(Container container)
