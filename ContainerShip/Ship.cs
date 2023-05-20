@@ -319,6 +319,32 @@ namespace ContainerShip
             return ' ';
         }
 
+        public void CheckWeightAboveContainersOnFirstLayer()
+        {
+            Console.WriteLine("Weight above containers on the first layer:");
+
+            for (int col = 0; col < width; col++)
+            {
+                for (int row = 0; row < length; row++)
+                {
+                    int weightAboveContainer = 0;
+
+                    for (int z = 1; z < height; z++)
+                    {
+                        if (layout[row, col, z] != null)
+                        {
+                            weightAboveContainer += layout[row, col, z].Weight;
+                        }
+                    }
+
+                    Console.WriteLine($"Container at column {col + 1}, row {row + 1}: {weightAboveContainer} kg");
+                }
+            }
+        }
+
+
+
+
     }
 }
 

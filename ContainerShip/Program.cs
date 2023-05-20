@@ -57,6 +57,7 @@ namespace ContainerShip
 
             // Print the ship layout
             ship.PrintLayout();
+            ship.CheckWeightAboveContainersOnFirstLayer();
         }
     }
 }
