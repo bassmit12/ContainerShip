@@ -24,32 +24,27 @@ namespace ContainerShip
         {
             Ship ship = new Ship(2, 3);
 
-            // Create an array of containers
-            Container[] containers = new Container[40];
+            // Create a list of containers
+            List<Container> containers = new List<Container>();
 
-            int index = 0;
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < 5; i++)
             {
-                containers[index] = new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal };
-                index++;
+                containers.Add(new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal });
             }
 
             for (int i = 0; i < 7; i++)
             {
-                containers[index] = new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Cold };
-                index++;
+                containers.Add(new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Cold });
             }
 
             for (int i = 0; i < 7; i++)
             {
-                containers[index] = new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Cold };
-                index++;
+                containers.Add(new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Cold });
             }
 
             for (int i = 0; i < 1; i++)
             {
-                containers[index] = new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Normal };
-                index++;
+                containers.Add(new Container { Type = ContainerType.Valuable, Temperature = ContainerTemperature.Normal });
             }
 
             // Place the containers on the ship

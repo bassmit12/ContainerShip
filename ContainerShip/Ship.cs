@@ -11,7 +11,7 @@ namespace ContainerShip
         private int width;
         private int length;
         private int height;
-        private Container?[,,] layout;
+        private List<Container>[,] layout;
 
         // Weight tracking variables
         private int LeftSideWeight { get; set; }
@@ -23,7 +23,7 @@ namespace ContainerShip
             this.width = width;
             this.length = length;
             this.height = 1; // Initialize height to 1
-            layout = new Container[length, width, height];
+            layout = new List<Container>[length, width];
 
             // Initialize weight tracking variables
             LeftSideWeight = 0;
@@ -31,20 +31,18 @@ namespace ContainerShip
             RightSideWeight = 0;
         }
 
-        public void PlaceContainers(Container[] containers)
+        public void PlaceContainers(List<Container> containers)
         {
-
-            // Separate the containers into cold and normal arrays
-            Container[] coldContainers = containers
+            // Separate the containers into cold and normal lists
+            List<Container> coldContainers = containers
                 .Where(container => container.Temperature == ContainerTemperature.Cold)
                 .OrderByDescending(container => container.Weight)
-                .ToArray();
+                .ToList();
 
-            Container[] normalContainers = containers
+            List<Container> normalContainers = containers
                 .Where(container => container.Temperature != ContainerTemperature.Cold)
                 .OrderByDescending(container => container.Weight)
-                .ToArray();
-
+                .ToList();
 
             // Place the cold containers first
             PlaceCooledContainers(coldContainers);
@@ -74,17 +72,14 @@ namespace ContainerShip
             int newHeight = height + 1;
 
             // Create a new temporary array with increased height
-            Container?[,,] newLayout = new Container[length, width, newHeight];
+            List<Container>[,] newLayout = new List<Container>[length, width];
 
             // Copy existing data to the new array
             for (int x = 0; x < length; x++)
             {
                 for (int y = 0; y < width; y++)
                 {
-                    for (int z = 0; z < height; z++)
-                    {
-                        newLayout[x, y, z] = layout[x, y, z];
-                    }
+                    newLayout[x, y] = layout[x, y];
                 }
             }
 
@@ -101,7 +96,7 @@ namespace ContainerShip
             {
                 for (int y = 0; y < width; y++)
                 {
-                    if (layout[x, y, layer] == null)
+                    if (layout[x, y] == null || layout[x, y].Count == layer)
                     {
                         return false;
                     }
@@ -110,7 +105,8 @@ namespace ContainerShip
             return true;
         }
 
-        private void PlaceCooledContainers(Container[] containers)
+
+        private void PlaceCooledContainers(List<Container> containers)
         {
             int col = 0;
             int layer = 0;
@@ -124,9 +120,13 @@ namespace ContainerShip
                         col = 0; // Reset the column position
                         while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
                         {
-                            if (layout[0, col, layer] == null && CheckWeightLimit(container, col, layer))
+                            if (layout[0, col]?.Count <= layer && CheckWeightLimit(container, col, layer))
                             {
-                                layout[0, col, layer] = container; // Place in the specified layer
+                                if (layout[0, col] == null)
+                                {
+                                    layout[0, col] = new List<Container>();
+                                }
+                                layout[0, col].Add(container); // Place in the specified layer
                                 isPlaced = true;
                                 UpdateWeight(container, col);
                             }
@@ -151,7 +151,7 @@ namespace ContainerShip
             }
         }
 
-        private void PlaceRemainingContainers(Container[] containers)
+        private void PlaceRemainingContainers(List<Container> containers)
         {
             int row = 0;
             int col = 0;
@@ -168,9 +168,13 @@ namespace ContainerShip
                             col = 0; // Reset the column position
                             while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
                             {
-                                if (layout[row, col, layer] == null && CheckWeightLimit(container, col, layer))
+                                if (layout[row, col]?.Count <= layer && CheckWeightLimit(container, col, layer))
                                 {
-                                    layout[row, col, layer] = container;
+                                    if (layout[row, col] == null)
+                                    {
+                                        layout[row, col] = new List<Container>();
+                                    }
+                                    layout[row, col].Add(container);
                                     isPlaced = true;
                                     UpdateWeight(container, col);
                                 }
@@ -203,15 +207,14 @@ namespace ContainerShip
             }
         }
 
-
         private bool CheckWeightLimit(Container container, int col, int layer)
         {
             int positionWeight = 0;
             for (int z = 0; z <= layer; z++) // Include the current layer in weight calculation
             {
-                if (layout[0, col, z] != null)
+                if (layout[0, col]?.Count > z)
                 {
-                    positionWeight += layout[0, col, z].Weight;
+                    positionWeight += layout[0, col][z].Weight;
                 }
             }
             return positionWeight + container.Weight <= container.MaxLoad;
@@ -264,12 +267,9 @@ namespace ContainerShip
             {
                 for (int y = 0; y < width; y++)
                 {
-                    for (int z = 0; z < height; z++)
+                    if (layout[x, y] != null && layout[x, y].Contains(container))
                     {
-                        if (layout[x, y, z] == container)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -288,9 +288,9 @@ namespace ContainerShip
                 {
                     for (int y = 0; y < width; y++)
                     {
-                        if (layout[x, y, z] != null)
+                        if (layout[x, y] != null && layout[x, y].Count > z)
                         {
-                            Console.Write(GetContainerSymbol(layout[x, y, z]) + " ");
+                            Console.Write(GetContainerSymbol(layout[x, y][z]) + " ");
                         }
                         else
                         {
@@ -343,11 +343,14 @@ namespace ContainerShip
                 {
                     int weightAboveContainer = 0;
 
-                    for (int z = 1; z < height; z++)
+                    if (layout[row, col] != null && layout[row, col].Count > 0)
                     {
-                        if (layout[row, col, z] != null)
+                        for (int z = 1; z < height; z++)
                         {
-                            weightAboveContainer += layout[row, col, z].Weight;
+                            if (layout[row, col].Count > z)
+                            {
+                                weightAboveContainer += layout[row, col][z].Weight;
+                            }
                         }
                     }
 
@@ -355,6 +358,7 @@ namespace ContainerShip
                 }
             }
         }
+
 
 
 
