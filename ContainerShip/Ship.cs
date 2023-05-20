@@ -124,7 +124,7 @@ namespace ContainerShip
                         col = 0; // Reset the column position
                         while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
                         {
-                            if (layout[0, col, layer] == null)
+                            if (layout[0, col, layer] == null && CheckWeightLimit(container, col, layer))
                             {
                                 layout[0, col, layer] = container; // Place in the specified layer
                                 isPlaced = true;
@@ -151,8 +151,6 @@ namespace ContainerShip
             }
         }
 
-
-
         private void PlaceRemainingContainers(Container[] containers)
         {
             int row = 0;
@@ -170,7 +168,7 @@ namespace ContainerShip
                             col = 0; // Reset the column position
                             while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
                             {
-                                if (layout[row, col, layer] == null)
+                                if (layout[row, col, layer] == null && CheckWeightLimit(container, col, layer))
                                 {
                                     layout[row, col, layer] = container;
                                     isPlaced = true;
@@ -204,6 +202,22 @@ namespace ContainerShip
                 }
             }
         }
+
+
+        private bool CheckWeightLimit(Container container, int col, int layer)
+        {
+            int positionWeight = 0;
+            for (int z = 0; z <= layer; z++) // Include the current layer in weight calculation
+            {
+                if (layout[0, col, z] != null)
+                {
+                    positionWeight += layout[0, col, z].Weight;
+                }
+            }
+            return positionWeight + container.Weight <= container.MaxLoad;
+        }
+
+
 
         private void UpdateWeight(Container container, int col)
         {

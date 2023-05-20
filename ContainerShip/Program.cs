@@ -22,13 +22,13 @@ namespace ContainerShip
     {
         static void Main(string[] args)
         {
-            Ship ship = new Ship(5, 3);
+            Ship ship = new Ship(2, 3);
 
             // Create an array of containers
-            Container[] containers = new Container[30];
+            Container[] containers = new Container[40];
 
             int index = 0;
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 25; i++)
             {
                 containers[index] = new Container { Type = ContainerType.Normal, Temperature = ContainerTemperature.Normal };
                 index++;
