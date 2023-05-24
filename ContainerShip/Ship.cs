@@ -156,48 +156,61 @@ namespace ContainerShip
             int row = 0;
             int col = 0;
             int layer = 0;
+
             foreach (var container in containers)
             {
+                Console.WriteLine("");
+                Console.WriteLine("Entering method");
                 if (container.Temperature != ContainerTemperature.Cold)
                 {
                     bool isPlaced = false;
-                    while (layer < height && !isPlaced) // Iterate through the layers until a suitable position is found
+
+                    while (layer < height && !isPlaced)
                     {
-                        while (row < length && !isPlaced) // Iterate through the rows until a suitable position is found
+                        while (row < length && !isPlaced)
                         {
-                            col = 0; // Reset the column position
-                            while (col < width && !isPlaced) // Iterate through the columns until a suitable position is found
+                            col = 0;
+
+                            while (col < width && !isPlaced)
                             {
+
                                 if (layout[row, col, layer] == null && CheckWeightLimit(container, col, layer))
                                 {
+                                    Console.WriteLine("Placing container");
                                     layout[row, col, layer] = container;
                                     isPlaced = true;
                                     UpdateWeight(container, col);
                                 }
+                                Console.WriteLine("Trying Next column");
                                 col++;
                             }
+
                             if (!isPlaced)
                             {
+                                Console.WriteLine("Trying next row");
+                                col = 0;
                                 row++;
-                                col = 0; // Reset the column position
-                                if (row >= length && layer == height - 1)
-                                {
-                                    // If all layers are full and there is no remaining layer, increase the height
-                                    IncreaseHeight();
-                                    row = 0; // Reset the row position
-                                }
                             }
                         }
+
                         if (!isPlaced)
                         {
+                            Console.WriteLine("Trying next layer");
+                            row = 0;
                             layer++;
-                            row = 0; // Reset the row position
+
+                            if (layer >= height)
+                            {
+
+                                IncreaseHeight();
+                            }
                         }
                     }
 
                     if (!isPlaced)
                     {
                         Console.WriteLine("Unable to place container: " + container.ToString());
+                        continue;
                     }
                 }
             }
